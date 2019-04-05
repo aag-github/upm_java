@@ -32,11 +32,6 @@ public class BoardUnitTest {
             new CellId[] {CellId.TOP_CENTER, CellId.MIDDLE_CENTER, CellId.BOTTOM_LEFT, CellId.BOTTOM_RIGHT},
             null,
         },
-        {   "X", "O", "X",
-            new CellId[]{CellId.TOP_LEFT,    CellId.TOP_RIGHT,    CellId.MIDDLE_LEFT, CellId.BOTTOM_CENTER, CellId.BOTTOM_LEFT},
-            new CellId[]{CellId.TOP_CENTER,  CellId.MIDDLE_CENTER,CellId.MIDDLE_RIGHT,CellId.BOTTOM_RIGHT},
-            new int[]{CellId.TOP_LEFT.ordinal(), CellId.MIDDLE_LEFT.ordinal(), CellId.BOTTOM_LEFT.ordinal()},
-        },
     };
         return Arrays.asList(values);
     }
