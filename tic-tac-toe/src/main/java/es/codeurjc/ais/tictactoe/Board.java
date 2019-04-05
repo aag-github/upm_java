@@ -55,7 +55,6 @@ public class Board {
 	}
 
 	public boolean checkDraw() {
-		
 		for (Cell cell : cells) {
 			if (cell.value == null) {
 				return false;
