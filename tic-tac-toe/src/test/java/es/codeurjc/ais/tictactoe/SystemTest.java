@@ -46,13 +46,13 @@ public class SystemTest {
     };
         return Arrays.asList(values);
     }
-	
+    
     @Parameter(0) public String user1Name;
-	@Parameter(1) public String user2Name;
-	@Parameter(2) public String winnerName;
-	@Parameter(3) public CellId[] user1Clicks;
-	@Parameter(4) public CellId[] user2Clicks;
-	
+    @Parameter(1) public String user2Name;
+    @Parameter(2) public String winnerName;
+    @Parameter(3) public CellId[] user1Clicks;
+    @Parameter(4) public CellId[] user2Clicks;
+    
     WebDriver browser1;
     WebDriver browser2;
     
@@ -89,11 +89,11 @@ public class SystemTest {
         // Then        
         String result = "";
         if (winnerName == user1Name) {
-        	result = user1Name + " wins! " + user2Name + " looses.";
+            result = user1Name + " wins! " + user2Name + " looses.";
         } else if (winnerName == user2Name) {
-        	result = user2Name + " wins! " + user1Name + " looses.";
+            result = user2Name + " wins! " + user1Name + " looses.";
         } else {
-        	result = "Draw!";
+            result = "Draw!";
         }
         
         assertEquals(browser1.switchTo().alert().getText(), result);

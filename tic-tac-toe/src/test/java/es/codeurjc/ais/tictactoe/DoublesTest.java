@@ -33,17 +33,17 @@ public class DoublesTest {
         NONE
     }
     
-	Connection connection1 = mock(Connection.class);
-	Connection connection2 = mock(Connection.class);
+    Connection connection1 = mock(Connection.class);
+    Connection connection2 = mock(Connection.class);
 
-	@Parameters(name = "{index}: Given a TicTacToe game with 2 players, When {0} wins, Then winning cells belong to {0}") 
+    @Parameters(name = "{index}: Given a TicTacToe game with 2 players, When {0} wins, Then winning cells belong to {0}") 
     public static Collection<Object[]> data() {
         Object[][] values = {
         {
             User.USER1,
-        	new CellId[]{CellId.TOP_LEFT,    CellId.TOP_CENTER,    CellId.TOP_RIGHT},
-        	new CellId[]{CellId.MIDDLE_LEFT, CellId.MIDDLE_CENTER},
-           	new CellId[]{CellId.TOP_LEFT,    CellId.TOP_CENTER,    CellId.TOP_RIGHT},
+            new CellId[]{CellId.TOP_LEFT,    CellId.TOP_CENTER,    CellId.TOP_RIGHT},
+            new CellId[]{CellId.MIDDLE_LEFT, CellId.MIDDLE_CENTER},
+            new CellId[]{CellId.TOP_LEFT,    CellId.TOP_CENTER,    CellId.TOP_RIGHT},
         },
         {
             User.USER2,
@@ -67,93 +67,93 @@ public class DoublesTest {
     }
 
     @Parameter(0) public User winner;    
-	@Parameter(1) public CellId[] user1Clicks;
-	@Parameter(2) public CellId[] user2Clicks;
-	@Parameter(3) public CellId[] winnerCells;
-	
-	@Test
-	public void givenTicTacToeGameWithTwoUsers_whenPlay_thenCheckResults() {
-		// Given
-		TicTacToeGame game = new TicTacToeGame();
-		game.addConnection(connection1);
-		game.addConnection(connection2);
-		
+    @Parameter(1) public CellId[] user1Clicks;
+    @Parameter(2) public CellId[] user2Clicks;
+    @Parameter(3) public CellId[] winnerCells;
+    
+    @Test
+    public void givenTicTacToeGameWithTwoUsers_whenPlay_thenCheckResults() {
+        // Given
+        TicTacToeGame game = new TicTacToeGame();
+        game.addConnection(connection1);
+        game.addConnection(connection2);
+        
         Player[] players = { new Player(1, "X", "User 1"), new Player(2, "O", "User 2") };
         
         CellId[][] clicks = {user1Clicks, user2Clicks}; 
-		
-		// When
-		game.addPlayer(players[0]);		
-		game.addPlayer(players[1]);
+        
+        // When
+        game.addPlayer(players[0]);        
+        game.addPlayer(players[1]);
 
-		// Then
-		verify(connection1, times(2)).sendEvent(
-				eq(EventType.JOIN_GAME), argThat(hasItems(players[0], players[1])));
-		verify(connection2, times(2)).sendEvent(
-				eq(EventType.JOIN_GAME), argThat(hasItems(players[0], players[1])));
-		reset(connection1);
-		reset(connection2);
+        // Then
+        verify(connection1, times(2)).sendEvent(
+                eq(EventType.JOIN_GAME), argThat(hasItems(players[0], players[1])));
+        verify(connection2, times(2)).sendEvent(
+                eq(EventType.JOIN_GAME), argThat(hasItems(players[0], players[1])));
+        reset(connection1);
+        reset(connection2);
 
-		// When/Then
-    	play(game, players[0], players[1]);
-    	
-    	//When game ends Then check Draw and Winner
-		assertThat(game.checkWinner().win, equalTo(winnerCells != null));
-		assertThat(game.checkWinner().pos, equalTo(CellId.cellsToInt(winnerCells)));
-		
-		if (winner != User.NONE) {
-		    CellId[] winnerClicks = clicks[winner.ordinal()];
-		    for(CellId cell : winnerCells) {
-		        assertThat(Arrays.asList(winnerClicks), hasItem(cell));
-		    }
-		}
-	}	
+        // When/Then
+        play(game, players[0], players[1]);
+        
+        //When game ends Then check Draw and Winner
+        assertThat(game.checkWinner().win, equalTo(winnerCells != null));
+        assertThat(game.checkWinner().pos, equalTo(CellId.cellsToInt(winnerCells)));
+        
+        if (winner != User.NONE) {
+            CellId[] winnerClicks = clicks[winner.ordinal()];
+            for(CellId cell : winnerCells) {
+                assertThat(Arrays.asList(winnerClicks), hasItem(cell));
+            }
+        }
+    }    
 
     private void play(TicTacToeGame game, Player player1, Player player2) {
         int max = Integer.max(user1Clicks.length, user2Clicks.length);
         int left = user1Clicks.length + user2Clicks.length;
         for(int i = 0; i < max; i++) {
             if (i < user1Clicks.length) {
-        		System.out.println("Playing '" + i + "' user1Clicks");
-        		left--;
-        		
-        		// When
-            	game.mark(user1Clicks[i].ordinal());
-        		
-            	// Then
-            	checkConnectionEvents(player2, left == 0); 
-        	}
+                System.out.println("Playing '" + i + "' user1Clicks");
+                left--;
+                
+                // When
+                game.mark(user1Clicks[i].ordinal());
+                
+                // Then
+                checkConnectionEvents(player2, left == 0); 
+            }
             if (i < user2Clicks.length) {
-        		System.out.println("Playing '" + i + " user2Clicks");
-        		left--;
-        		
-        		// When
-            	game.mark(user2Clicks[i].ordinal());
-            	
-            	//Then
-            	checkConnectionEvents(player1, left == 0);
-          	}
+                System.out.println("Playing '" + i + " user2Clicks");
+                left--;
+                
+                // When
+                game.mark(user2Clicks[i].ordinal());
+                
+                //Then
+                checkConnectionEvents(player1, left == 0);
+              }
         }
     }
     
     private void checkConnectionEvents(Player nextPlayer, Boolean lastCLick) {
-		verify(connection1, times(1)).sendEvent(
-				eq(EventType.MARK), any());            	
-		verify(connection2, times(1)).sendEvent(
-				eq(EventType.MARK), any());
-		
-		if (lastCLick) {
-			verify(connection1, times(1)).sendEvent(
-					eq(EventType.GAME_OVER), any());            	
-			verify(connection2, times(1)).sendEvent(
-					eq(EventType.GAME_OVER), any());        			
-		} else {
-			verify(connection1, times(1)).sendEvent(
-					eq(EventType.SET_TURN), eq(nextPlayer));            	
-			verify(connection2, times(1)).sendEvent(
-					eq(EventType.SET_TURN), eq(nextPlayer));
-		}
-		reset(connection1);
-		reset(connection2); 
+        verify(connection1, times(1)).sendEvent(
+                eq(EventType.MARK), any());
+        verify(connection2, times(1)).sendEvent(
+                eq(EventType.MARK), any());
+        
+        if (lastCLick) {
+            verify(connection1, times(1)).sendEvent(
+                    eq(EventType.GAME_OVER), any());
+            verify(connection2, times(1)).sendEvent(
+                    eq(EventType.GAME_OVER), any());
+        } else {
+            verify(connection1, times(1)).sendEvent(
+                    eq(EventType.SET_TURN), eq(nextPlayer));
+            verify(connection2, times(1)).sendEvent(
+                    eq(EventType.SET_TURN), eq(nextPlayer));
+        }
+        reset(connection1);
+        reset(connection2); 
     }
 }
