@@ -24,7 +24,7 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 @RunWith(Parameterized.class)
 public class SystemTest {
     
-    @Parameters(name = "{index}: Given 2 users ({0} vs {1}), When {2} wins, Then check alert message")
+    @Parameters(name = "{index}: Given 2 users playing TicTacToe game ({0} vs {1}), When {2} wins, Then alert message indicates that {2} wins")
     public static Collection<Object[]> data() {
         Object[][] values = {
         { "user1", "user2", "user1",
@@ -38,6 +38,10 @@ public class SystemTest {
         { "luis", "javi", "no one", 
            new CellId[] {CellId.TOP_LEFT,   CellId.TOP_RIGHT ,    CellId.MIDDLE_LEFT, CellId.MIDDLE_RIGHT, CellId.BOTTOM_CENTER}, 
            new CellId[] {CellId.TOP_CENTER, CellId.MIDDLE_CENTER, CellId.BOTTOM_LEFT, CellId.BOTTOM_RIGHT}  
+        },
+        { "antonio", "pepe", "antonio", 
+          new CellId[]{CellId.TOP_LEFT,    CellId.TOP_RIGHT,    CellId.MIDDLE_LEFT, CellId.BOTTOM_CENTER, CellId.BOTTOM_LEFT}, 
+          new CellId[]{CellId.TOP_CENTER,  CellId.MIDDLE_CENTER,CellId.MIDDLE_RIGHT,CellId.BOTTOM_RIGHT}, 
         },
     };
         return Arrays.asList(values);

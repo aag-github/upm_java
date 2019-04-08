@@ -36,7 +36,7 @@ public class DoublesTest {
 	Connection connection1 = mock(Connection.class);
 	Connection connection2 = mock(Connection.class);
 
-	@Parameters(name = "{index}: Given a board, When {0} wins, Then check draw and winning cells functions")
+	@Parameters(name = "{index}: Given a TicTacToe game with 2 players, When {0} wins, Then winning cells belong to {0}") 
     public static Collection<Object[]> data() {
         Object[][] values = {
         {
@@ -57,6 +57,11 @@ public class DoublesTest {
             new CellId[] {CellId.TOP_CENTER, CellId.MIDDLE_CENTER, CellId.BOTTOM_LEFT, CellId.BOTTOM_RIGHT},
             null,
         },
+        {   User.USER1,
+            new CellId[]{CellId.TOP_LEFT,    CellId.TOP_CENTER,    CellId.MIDDLE_CENTER, CellId.MIDDLE_LEFT, CellId.BOTTOM_RIGHT}, 
+            new CellId[]{CellId.BOTTOM_LEFT,  CellId.TOP_RIGHT,  CellId.BOTTOM_CENTER,CellId.MIDDLE_RIGHT}, 
+            new CellId[]{CellId.TOP_LEFT, CellId.MIDDLE_CENTER, CellId.BOTTOM_RIGHT},
+        },
     };
         return Arrays.asList(values);
     }
@@ -65,17 +70,6 @@ public class DoublesTest {
 	@Parameter(1) public CellId[] user1Clicks;
 	@Parameter(2) public CellId[] user2Clicks;
 	@Parameter(3) public CellId[] winnerCells;
-	
-	private int[] cellsToInt(CellId[] cells) {
-	    if (cells == null) {
-	        return null;
-	    }
-	    int[] intCells = new int[cells.length];
-	    for (int i = 0; i < cells.length; i++) {
-	        intCells[i] = cells[i].ordinal();
-	    }
-	    return intCells;
-	}
 	
 	@Test
 	public void givenTicTacToeGameWithTwoUsers_whenPlay_thenCheckResults() {
@@ -105,7 +99,7 @@ public class DoublesTest {
     	
     	//When game ends Then check Draw and Winner
 		assertThat(game.checkWinner().win, equalTo(winnerCells != null));
-		assertThat(game.checkWinner().pos, equalTo(cellsToInt(winnerCells)));
+		assertThat(game.checkWinner().pos, equalTo(CellId.cellsToInt(winnerCells)));
 		
 		if (winner != User.NONE) {
 		    CellId[] winnerClicks = clicks[winner.ordinal()];
