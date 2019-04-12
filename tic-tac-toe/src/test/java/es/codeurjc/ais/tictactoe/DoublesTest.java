@@ -22,8 +22,10 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
+import org.mockito.ArgumentCaptor;
 
 import es.codeurjc.ais.tictactoe.TicTacToeGame.EventType;
+import es.codeurjc.ais.tictactoe.TicTacToeGame.WinnerValue;
 
 @RunWith(Parameterized.class)
 public class DoublesTest {
@@ -91,11 +93,10 @@ public class DoublesTest {
                 eq(EventType.JOIN_GAME), argThat(hasItems(players[0], players[1])));
         verify(connection2, times(2)).sendEvent(
                 eq(EventType.JOIN_GAME), argThat(hasItems(players[0], players[1])));
-        reset(connection1);
-        reset(connection2);
+        resetConnections();
 
         // When/Then
-        play(game, players[0], players[1]);
+        play(game, players[0], players[1], winnerCells == null);
         
         //When game ends Then check Draw and Winner
         assertThat(game.checkWinner().win, equalTo(winnerCells != null));
@@ -109,7 +110,7 @@ public class DoublesTest {
         }
     }    
 
-    private void play(TicTacToeGame game, Player player1, Player player2) {
+    private void play(TicTacToeGame game, Player player1, Player player2, boolean draw) {
         int max = Integer.max(user1Clicks.length, user2Clicks.length);
         int left = user1Clicks.length + user2Clicks.length;
         for(int i = 0; i < max; i++) {
@@ -121,7 +122,12 @@ public class DoublesTest {
                 game.mark(user1Clicks[i].ordinal());
                 
                 // Then
-                checkConnectionEvents(player2, left == 0); 
+                if (left == 0) {
+                    checkGameOverConnectionEvents(draw ? "" : player1.getName());                                         
+                } else {
+                    checkTurnConnectionEvents(player2.getName());                     
+                }
+                resetConnections();
             }
             if (i < user2Clicks.length) {
                 System.out.println("Playing '" + i + " user2Clicks");
@@ -131,28 +137,52 @@ public class DoublesTest {
                 game.mark(user2Clicks[i].ordinal());
                 
                 //Then
-                checkConnectionEvents(player1, left == 0);
-              }
+                if (left == 0) {
+                    checkGameOverConnectionEvents(draw ? "" : player2.getName());                                         
+                } else {
+                    checkTurnConnectionEvents(player1.getName());                     
+                }
+                resetConnections();
+            }
         }
     }
     
-    private void checkConnectionEvents(Player nextPlayer, Boolean lastCLick) {
+    private void checkGameOverConnectionEvents(String expectedWinner) {
         verify(connection1, times(1)).sendEvent(
                 eq(EventType.MARK), any());
         verify(connection2, times(1)).sendEvent(
                 eq(EventType.MARK), any());
         
-        if (lastCLick) {
-            verify(connection1, times(1)).sendEvent(
-                    eq(EventType.GAME_OVER), any());
-            verify(connection2, times(1)).sendEvent(
-                    eq(EventType.GAME_OVER), any());
-        } else {
-            verify(connection1, times(1)).sendEvent(
-                    eq(EventType.SET_TURN), eq(nextPlayer));
-            verify(connection2, times(1)).sendEvent(
-                    eq(EventType.SET_TURN), eq(nextPlayer));
-        }
+        String actualWinner;
+        ArgumentCaptor<WinnerValue> argument = ArgumentCaptor.forClass(WinnerValue.class);
+        verify(connection1, times(1)).sendEvent(
+                eq(EventType.GAME_OVER), argument.capture());
+        actualWinner = argument.getValue() != null ? argument.getValue().player.getName() : "";
+        assertThat(actualWinner, equalTo(expectedWinner));
+         
+        verify(connection2, times(1)).sendEvent(
+                eq(EventType.GAME_OVER), argument.capture());
+        actualWinner = argument.getValue() != null ? argument.getValue().player.getName() : "";
+        assertThat(actualWinner, equalTo(expectedWinner));
+    }
+
+    private void checkTurnConnectionEvents(String expectedNextPlayer) {
+        ArgumentCaptor<Player> argument = ArgumentCaptor.forClass(Player.class);
+        verify(connection1, times(1)).sendEvent(
+               eq(EventType.MARK), any());
+        verify(connection2, times(1)).sendEvent(
+               eq(EventType.MARK), any());
+        
+        verify(connection1, times(1)).sendEvent(
+                eq(EventType.SET_TURN), argument.capture());
+        assertThat(argument.getValue().getName(), equalTo(expectedNextPlayer));
+
+        verify(connection2, times(1)).sendEvent(
+                eq(EventType.SET_TURN), argument.capture());
+        assertThat(argument.getValue().getName(), equalTo(expectedNextPlayer));
+    }
+
+    private void resetConnections() {
         reset(connection1);
         reset(connection2); 
     }
