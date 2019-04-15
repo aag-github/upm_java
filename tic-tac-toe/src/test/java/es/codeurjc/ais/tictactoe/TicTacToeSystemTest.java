@@ -22,7 +22,7 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import io.github.bonigarcia.wdm.WebDriverManager;
 
 @RunWith(Parameterized.class)
-public class SystemTest {
+public class TicTacToeSystemTest {
     
     @Parameters(name = "{index}: Given 2 users playing TicTacToe game ({0} vs {1}), When {2} wins, Then alert message indicates that {2} wins")
     public static Collection<Object[]> data() {

@@ -28,7 +28,7 @@ import es.codeurjc.ais.tictactoe.TicTacToeGame.EventType;
 import es.codeurjc.ais.tictactoe.TicTacToeGame.WinnerValue;
 
 @RunWith(Parameterized.class)
-public class DoublesTest {
+public class TicTacToeGameTest {
     enum User {
         USER1,
         USER2,
