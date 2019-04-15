@@ -121,6 +121,8 @@ public class TicTacToeSystemTest {
 
     private void loginBrowser(WebDriver browser, String url, String userName) throws InterruptedException {
         browser.get(url);
+        // This has been added for stability, otherwise login may not be performed correctly
+        TimeUnit.MILLISECONDS.sleep(300);
         
         browser.findElement(By.id("nickname")).sendKeys(userName);
 
